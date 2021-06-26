@@ -16,7 +16,15 @@ void AMovingPlatform::BeginPlay()
 	if(HasAuthority())
 	{
 		SetReplicates(true);
-		SetReplicateMovement(true);		
+		SetReplicateMovement(true);
+		
+		StartLocation = GetActorLocation();
+
+		// Target location is local by default, so we need to convert it to global
+		TargetLocation = GetTransform().TransformPosition(TargetLocation);
+
+		// Get the normalised direction of the target location from the start
+		TargetDirection = (TargetLocation - StartLocation).GetSafeNormal();
 	}
 }
 
@@ -27,8 +35,14 @@ void AMovingPlatform::Tick(float DeltaSeconds)
 	if(HasAuthority())
 	{
 		FVector CurrentLocation = GetActorLocation();
-		FVector NewLocation = CurrentLocation + FVector(MoveSpeed * DeltaSeconds, 0, 0);
 
-		SetActorLocation(NewLocation);		
+		// This is nice, but if the platform moves faster than the check, it'll never turn around...
+		if(CurrentLocation.Equals(TargetLocation, 20.0f))
+		{
+			Swap(StartLocation, TargetLocation);
+			TargetDirection *= -1;
+		}
+
+		SetActorLocation(CurrentLocation + TargetDirection * DeltaSeconds * MoveSpeed);		
 	}
 }
