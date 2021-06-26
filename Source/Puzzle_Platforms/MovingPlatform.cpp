@@ -9,6 +9,16 @@ AMovingPlatform::AMovingPlatform()
 	SetMobility(EComponentMobility::Movable);
 }
 
+void AMovingPlatform::AddActiveTrigger()
+{
+	++ActiveTriggers;
+}
+
+void AMovingPlatform::RemoveActiveTrigger()
+{
+	--ActiveTriggers;
+}
+
 void AMovingPlatform::BeginPlay()
 {
 	Super::BeginPlay();
@@ -31,18 +41,21 @@ void AMovingPlatform::BeginPlay()
 void AMovingPlatform::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-
-	if(HasAuthority())
+	if(ActiveTriggers > 0)
 	{
-		FVector CurrentLocation = GetActorLocation();
-
-		// This is nice, but if the platform moves faster than the check, it'll never turn around...
-		if(CurrentLocation.Equals(TargetLocation, 20.0f))
+		if(HasAuthority())
 		{
-			Swap(StartLocation, TargetLocation);
-			TargetDirection *= -1;
-		}
-
-		SetActorLocation(CurrentLocation + TargetDirection * DeltaSeconds * MoveSpeed);		
+			FVector CurrentLocation = GetActorLocation();
+	
+			// This is nice, but if the platform moves faster than the check, it'll never turn around...
+			if(CurrentLocation.Equals(TargetLocation, 20.0f))
+			{
+				Swap(StartLocation, TargetLocation);
+				TargetDirection *= -1;
+			}
+	
+			SetActorLocation(CurrentLocation + TargetDirection * DeltaSeconds * MoveSpeed);		
+		}	
 	}
+
 }
