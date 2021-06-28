@@ -6,6 +6,7 @@
 #include "Engine/GameInstance.h"
 #include "PuzzlePlatformsGameInstance.generated.h"
 
+class UUserWidget;
 UCLASS()
 class PUZZLE_PLATFORMS_API UPuzzlePlatformsGameInstance : public UGameInstance
 {
@@ -14,10 +15,16 @@ class PUZZLE_PLATFORMS_API UPuzzlePlatformsGameInstance : public UGameInstance
 	UPuzzlePlatformsGameInstance();
 	virtual void Init() override;
 
+	UFUNCTION(BlueprintCallable)
+	void LoadMenu();
+	
 	UFUNCTION(Exec)
 	void Host();
 
 	UFUNCTION(Exec)
 	void Join(const FString& IPAddress);
+
+	private:
+	TSubclassOf<UUserWidget> MainMenuClass;
 	
 };
