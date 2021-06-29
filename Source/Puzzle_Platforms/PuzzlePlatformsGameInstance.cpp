@@ -3,32 +3,40 @@
 
 #include "PuzzlePlatformsGameInstance.h"
 #include "Blueprint/UserWidget.h"
-#include "MenuSystem/MainMenu.h"
+#include "MenuSystem/MenuWidget.h"
+#include "MenuSystem/PauseMenu.h"
 
 UPuzzlePlatformsGameInstance::UPuzzlePlatformsGameInstance()
 {
-	static ConstructorHelpers::FClassFinder<UMainMenu> MenuBPClass(TEXT("/Game/MenuSystem/WBP_MainMenu"));
+	static ConstructorHelpers::FClassFinder<UUserWidget> MenuBPClass(TEXT("/Game/MenuSystem/WBP_MainMenu"));
 	if(!ensure(MenuBPClass.Class != nullptr)) return;
 
 	MainMenuClass = MenuBPClass.Class;
-	
-}
 
-void UPuzzlePlatformsGameInstance::Init()
-{
-	Super::Init();
+	static ConstructorHelpers::FClassFinder<UUserWidget> PauseBPClass(TEXT("/Game/MenuSystem/WBP_PauseMenu"));
+	if(!ensure(PauseBPClass.Class != nullptr)) return;
 
-	UE_LOG(LogTemp, Warning, TEXT("Init: Found Class: %s"), *MainMenuClass->GetName());
+	PauseMenuClass = PauseBPClass.Class;
 }
 
 void UPuzzlePlatformsGameInstance::LoadMenu()
 {
 	if (!ensure(MainMenuClass != nullptr)) return;
 	
-	UMainMenu* MainMenu = CreateWidget<UMainMenu>(this, MainMenuClass);
+	UMenuWidget* MainMenu = CreateWidget<UMenuWidget>(this, MainMenuClass);
 	if(!ensure(MainMenu != nullptr)) return;
 
 	MainMenu->SetMenuInterface(this);
+}
+
+void UPuzzlePlatformsGameInstance::LoadPause()
+{
+	if (!ensure(MainMenuClass != nullptr)) return;
+	
+	UMenuWidget* PauseMenu = CreateWidget<UMenuWidget>(this, PauseMenuClass);
+	if(!ensure(PauseMenu != nullptr)) return;
+
+	PauseMenu->SetMenuInterface(this);
 }
 
 void UPuzzlePlatformsGameInstance::Host()
@@ -51,8 +59,8 @@ void UPuzzlePlatformsGameInstance::Join(const FString& IPAddress)
 	UEngine* Engine = GetEngine();
 	if(!ensure(Engine != nullptr)) return;
 
+	// Debug Text
 	const FString Message = FString::Printf(TEXT("Joining ... %s"), *IPAddress);
-
 	Engine->AddOnScreenDebugMessage(-1, 5.f, FColor::White, Message, true, FVector2D(1));
 
 	APlayerController* PlayerController = GetFirstLocalPlayerController();
@@ -60,3 +68,12 @@ void UPuzzlePlatformsGameInstance::Join(const FString& IPAddress)
 
 	PlayerController->ClientTravel(IPAddress, TRAVEL_Absolute);
 }
+
+void UPuzzlePlatformsGameInstance::LoadMainMenu()
+{
+	APlayerController* PlayerController = GetFirstLocalPlayerController();
+	if(!ensure(PlayerController != nullptr)) return;
+
+	PlayerController->ClientTravel("/Game/MenuSystem/MainMenu", TRAVEL_Absolute);
+}
+

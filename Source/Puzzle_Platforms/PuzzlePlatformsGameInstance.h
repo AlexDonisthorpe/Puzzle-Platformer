@@ -8,17 +8,19 @@
 #include "PuzzlePlatformsGameInstance.generated.h"
 
 class UUserWidget;
-class UMainMenu;
+class UMenuWidget;
 UCLASS()
 class PUZZLE_PLATFORMS_API UPuzzlePlatformsGameInstance : public UGameInstance, public IMenuInterface
 {
 	GENERATED_BODY()
 
 	UPuzzlePlatformsGameInstance();
-	virtual void Init() override;
 
 	UFUNCTION(BlueprintCallable)
 	void LoadMenu();
+
+	UFUNCTION(BlueprintCallable)
+	void LoadPause();
 	
 	UFUNCTION(Exec)
 	virtual void Host() override;
@@ -26,6 +28,9 @@ class PUZZLE_PLATFORMS_API UPuzzlePlatformsGameInstance : public UGameInstance, 
 	UFUNCTION(Exec)
 	virtual void Join(const FString& IPAddress) override;
 
+	virtual void LoadMainMenu() override;
+	
 	private:
-	TSubclassOf<UMainMenu> MainMenuClass;
+	TSubclassOf<UUserWidget> MainMenuClass;
+	TSubclassOf<UUserWidget> PauseMenuClass;
 };

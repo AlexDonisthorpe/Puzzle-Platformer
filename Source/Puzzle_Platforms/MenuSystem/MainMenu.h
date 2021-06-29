@@ -4,21 +4,16 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "MenuInterface.h"
+#include "MenuWidget.h"
 #include "MainMenu.generated.h"
 
 
 UCLASS()
-class PUZZLE_PLATFORMS_API UMainMenu : public UUserWidget
+class PUZZLE_PLATFORMS_API UMainMenu : public UMenuWidget
 {
 	GENERATED_BODY()
-	public:
-	void SetMenuInterface(IMenuInterface* MMenuInterface);
-	virtual void OnLevelRemovedFromWorld(ULevel* InLevel, UWorld* InWorld) override;
 	
 	private:
-	IMenuInterface* MenuInterface;
-	
 	UFUNCTION()
 	void HostButtonClicked();
 
@@ -53,8 +48,8 @@ class PUZZLE_PLATFORMS_API UMainMenu : public UUserWidget
 	class UEditableTextBox* IPAddressBox;
 	
 	protected:
-	
 	virtual bool Initialize() override;
+
 };
 
 

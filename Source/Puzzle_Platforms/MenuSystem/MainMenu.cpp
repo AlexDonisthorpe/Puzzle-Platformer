@@ -6,11 +6,6 @@
 #include "Components/WidgetSwitcher.h"
 #include "Components/EditableTextBox.h"
 
-void UMainMenu::SetMenuInterface(IMenuInterface* MMenuInterface)
-{
-	MenuInterface = MMenuInterface;
-}
-
 void UMainMenu::HostButtonClicked()
 {
 	if(!ensure(MenuInterface != nullptr)) return;
@@ -43,9 +38,8 @@ void UMainMenu::BackToMain()
 
 bool UMainMenu::Initialize()
 {
-	const bool bSuccess = Super::Initialize();
-	if(!bSuccess) return bSuccess;
-
+	Super::Initialize();
+	
 	if(!ensure(Host != nullptr)) return false;
 	Host->OnClicked.AddDynamic(this, &UMainMenu::HostButtonClicked);
 
@@ -58,40 +52,10 @@ bool UMainMenu::Initialize()
 	if(!ensure(Back != nullptr)) return false;
 	Back->OnClicked.AddDynamic(this, &UMainMenu::BackToMain);
 
-	this->bIsFocusable = true;
-	this->AddToViewport();
-
-	UWorld* World = GetWorld();
-	if(!ensure(World != nullptr)) return false;
-	
-	APlayerController* PlayerController = World->GetFirstPlayerController();
-	if(!ensure(PlayerController != nullptr)) return false;
-
-	FInputModeUIOnly InputMode;
-	InputMode.SetWidgetToFocus(this->TakeWidget());
-	InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
-
-	PlayerController->SetInputMode(InputMode);
-	PlayerController->SetShowMouseCursor(true);
-	
 	return true;
 }
 
-void UMainMenu::OnLevelRemovedFromWorld(ULevel* InLevel, UWorld* InWorld)
-{
-	Super::OnLevelRemovedFromWorld(InLevel, InWorld);
 
-	UWorld* World = GetWorld();
-	if(!ensure(World != nullptr)) return;
-	
-	APlayerController* PlayerController = World->GetFirstPlayerController();
-	if(!ensure(PlayerController != nullptr)) return;
-
-	const FInputModeGameOnly InputMode;
-
-	PlayerController->SetInputMode(InputMode);
-	PlayerController->SetShowMouseCursor(false);
-}
 
 
 
