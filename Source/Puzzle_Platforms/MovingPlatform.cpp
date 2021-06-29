@@ -27,15 +27,15 @@ void AMovingPlatform::BeginPlay()
 	{
 		SetReplicates(true);
 		SetReplicateMovement(true);
-		
-		StartLocation = GetActorLocation();
-
-		// Target location is local by default, so we need to convert it to global
-		TargetLocation = GetTransform().TransformPosition(TargetLocation);
-
-		// Get the normalised direction of the target location from the start
-		TargetDirection = (TargetLocation - StartLocation).GetSafeNormal();
 	}
+
+	StartLocation = GetActorLocation();
+
+	// Target location is local by default, so we need to convert it to global
+	TargetLocation = GetTransform().TransformPosition(TargetLocation);
+
+	// Get the normalised direction of the target location from the start
+	TargetDirection = (TargetLocation - StartLocation).GetSafeNormal();
 }
 
 void AMovingPlatform::Tick(float DeltaSeconds)
@@ -43,19 +43,16 @@ void AMovingPlatform::Tick(float DeltaSeconds)
 	Super::Tick(DeltaSeconds);
 	if(ActiveTriggers > 0)
 	{
-		if(HasAuthority())
+		FVector CurrentLocation = GetActorLocation();
+	
+		// This is nice, but if the platform moves faster than the check, it'll never turn around...
+		if(CurrentLocation.Equals(TargetLocation, 20.0f))
 		{
-			FVector CurrentLocation = GetActorLocation();
+			Swap(StartLocation, TargetLocation);
+			TargetDirection *= -1;
+		}
 	
-			// This is nice, but if the platform moves faster than the check, it'll never turn around...
-			if(CurrentLocation.Equals(TargetLocation, 20.0f))
-			{
-				Swap(StartLocation, TargetLocation);
-				TargetDirection *= -1;
-			}
-	
-			SetActorLocation(CurrentLocation + TargetDirection * DeltaSeconds * MoveSpeed);		
-		}	
+		SetActorLocation(CurrentLocation + TargetDirection * DeltaSeconds * MoveSpeed);		
 	}
 
 }
