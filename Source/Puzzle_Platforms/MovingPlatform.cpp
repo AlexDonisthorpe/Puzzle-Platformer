@@ -44,9 +44,12 @@ void AMovingPlatform::Tick(float DeltaSeconds)
 	if(ActiveTriggers > 0)
 	{
 		FVector CurrentLocation = GetActorLocation();
+		
+		float JourneyLength = (TargetLocation - StartLocation).Size();
+		float JourneyTravelled = (CurrentLocation - StartLocation).Size();
 	
 		// This is nice, but if the platform moves faster than the check, it'll never turn around...
-		if(CurrentLocation.Equals(TargetLocation, 20.0f))
+		if(JourneyTravelled >= JourneyLength)
 		{
 			Swap(StartLocation, TargetLocation);
 			TargetDirection *= -1;
