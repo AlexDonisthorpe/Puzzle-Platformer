@@ -4,14 +4,21 @@
 #include "MainMenu.h"
 #include "Components/Button.h"
 
+void UMainMenu::SetMenuInterface(IMenuInterface* MMenuInterface)
+{
+	MenuInterface = MMenuInterface;
+}
+
 void UMainMenu::HostButtonClicked()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Host Button Clicked"));
+	if(!ensure(MenuInterface != nullptr)) return;
+	MenuInterface->Host();
 }
 
 void UMainMenu::JoinButtonClicked()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Join Button Clicked"));
+	if(!ensure(MenuInterface != nullptr)) return;
+	MenuInterface->Join("127.0.0.1");
 }
 
 bool UMainMenu::Initialize()

@@ -3,10 +3,11 @@
 
 #include "PuzzlePlatformsGameInstance.h"
 #include "Blueprint/UserWidget.h"
+#include "MenuSystem/MainMenu.h"
 
 UPuzzlePlatformsGameInstance::UPuzzlePlatformsGameInstance()
 {
-	static ConstructorHelpers::FClassFinder<UUserWidget> MenuBPClass(TEXT("/Game/MenuSystem/WBP_MainMenu"));
+	static ConstructorHelpers::FClassFinder<UMainMenu> MenuBPClass(TEXT("/Game/MenuSystem/WBP_MainMenu"));
 	if(!ensure(MenuBPClass.Class != nullptr)) return;
 
 	MainMenuClass = MenuBPClass.Class;
@@ -24,7 +25,7 @@ void UPuzzlePlatformsGameInstance::LoadMenu()
 {
 	if (!ensure(MainMenuClass != nullptr)) return;
 	
-	UUserWidget* MainMenu = CreateWidget<UUserWidget>(this, MainMenuClass);
+	UMainMenu* MainMenu = CreateWidget<UMainMenu>(this, MainMenuClass);
 	if(!ensure(MainMenu != nullptr)) return;
 
 	MainMenu->bIsFocusable = true;
@@ -39,6 +40,8 @@ void UPuzzlePlatformsGameInstance::LoadMenu()
 
 	PlayerController->SetInputMode(InputMode);
 	PlayerController->SetShowMouseCursor(true);
+
+	MainMenu->SetMenuInterface(this);
 }
 
 void UPuzzlePlatformsGameInstance::Host()

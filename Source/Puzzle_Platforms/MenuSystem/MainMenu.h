@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "MenuInterface.h"
 #include "MainMenu.generated.h"
 
 
@@ -11,8 +12,12 @@ UCLASS()
 class PUZZLE_PLATFORMS_API UMainMenu : public UUserWidget
 {
 	GENERATED_BODY()
-
+	public:
+	void SetMenuInterface(IMenuInterface* MMenuInterface);
+	
 	private:
+	IMenuInterface* MenuInterface;
+	
 	UFUNCTION()
 	void HostButtonClicked();
 
