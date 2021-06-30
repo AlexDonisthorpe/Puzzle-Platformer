@@ -26,6 +26,9 @@ class PUZZLE_PLATFORMS_API UMainMenu : public UMenuWidget
 	UFUNCTION()
 	void BackToMain();
 	
+	UFUNCTION()
+	void QuitGame();
+	
 	UPROPERTY(meta = (BindWidget))
 	class UButton* Host;
 
@@ -46,6 +49,9 @@ class PUZZLE_PLATFORMS_API UMainMenu : public UMenuWidget
 
 	UPROPERTY(meta = (BindWidget))
 	class UEditableTextBox* IPAddressBox;
+	
+	UPROPERTY(meta = (BindWidget))
+	class UButton* Quit;
 	
 	protected:
 	virtual bool Initialize() override;

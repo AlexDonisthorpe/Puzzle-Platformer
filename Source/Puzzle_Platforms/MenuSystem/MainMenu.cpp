@@ -5,6 +5,7 @@
 #include "Components/Button.h"
 #include "Components/WidgetSwitcher.h"
 #include "Components/EditableTextBox.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 void UMainMenu::HostButtonClicked()
 {
@@ -36,6 +37,20 @@ void UMainMenu::BackToMain()
 	MenuSwitcher->SetActiveWidget(this);
 }
 
+void UMainMenu::QuitGame()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Hello"));
+	if(!ensure(Quit != nullptr)) return;
+
+	UWorld* World = GetWorld();
+	if(!ensure(World != nullptr)) return;
+
+	APlayerController* PlayerController = World->GetFirstPlayerController();
+	if(!ensure(World != nullptr)) return;
+	
+	UKismetSystemLibrary::QuitGame(GetWorld(), PlayerController, EQuitPreference::Quit, false);
+}
+
 bool UMainMenu::Initialize()
 {
 	Super::Initialize();
@@ -51,6 +66,9 @@ bool UMainMenu::Initialize()
 
 	if(!ensure(Back != nullptr)) return false;
 	Back->OnClicked.AddDynamic(this, &UMainMenu::BackToMain);
+	
+	if(!ensure(Quit != nullptr)) return false;
+    Quit->OnClicked.AddDynamic(this, &UMainMenu::QuitGame);
 
 	return true;
 }
