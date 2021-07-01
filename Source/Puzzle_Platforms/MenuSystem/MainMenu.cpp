@@ -39,7 +39,6 @@ void UMainMenu::BackToMain()
 
 void UMainMenu::QuitGame()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Hello"));
 	if(!ensure(Quit != nullptr)) return;
 
 	UWorld* World = GetWorld();

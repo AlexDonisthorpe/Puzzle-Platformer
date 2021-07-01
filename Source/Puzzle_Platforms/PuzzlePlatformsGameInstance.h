@@ -17,7 +17,7 @@ class PUZZLE_PLATFORMS_API UPuzzlePlatformsGameInstance : public UGameInstance, 
 	UPuzzlePlatformsGameInstance();
 
 	UFUNCTION(BlueprintCallable)
-	void LoadMenu();
+	void LoadMenuWidget();
 
 	UFUNCTION(BlueprintCallable)
 	void LoadPause();
@@ -29,6 +29,7 @@ class PUZZLE_PLATFORMS_API UPuzzlePlatformsGameInstance : public UGameInstance, 
 	virtual void Join(const FString& IPAddress) override;
 
 	virtual void LoadMainMenu() override;
+	virtual void Init() override;
 	
 	private:
 	TSubclassOf<UUserWidget> MainMenuClass;

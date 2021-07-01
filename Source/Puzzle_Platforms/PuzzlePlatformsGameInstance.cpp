@@ -4,7 +4,7 @@
 #include "PuzzlePlatformsGameInstance.h"
 #include "Blueprint/UserWidget.h"
 #include "MenuSystem/MenuWidget.h"
-#include "MenuSystem/PauseMenu.h"
+#include "OnlineSubsystem.h"
 
 UPuzzlePlatformsGameInstance::UPuzzlePlatformsGameInstance()
 {
@@ -19,7 +19,7 @@ UPuzzlePlatformsGameInstance::UPuzzlePlatformsGameInstance()
 	PauseMenuClass = PauseBPClass.Class;
 }
 
-void UPuzzlePlatformsGameInstance::LoadMenu()
+void UPuzzlePlatformsGameInstance::LoadMenuWidget()
 {
 	if (!ensure(MainMenuClass != nullptr)) return;
 	
@@ -75,5 +75,13 @@ void UPuzzlePlatformsGameInstance::LoadMainMenu()
 	if(!ensure(PlayerController != nullptr)) return;
 
 	PlayerController->ClientTravel("/Game/MenuSystem/MainMenu", TRAVEL_Absolute);
+}
+
+void UPuzzlePlatformsGameInstance::Init()
+{
+	IOnlineSubsystem* Subsystem = IOnlineSubsystem::Get();
+	if(!ensure(Subsystem != nullptr)) return;
+
+	UE_LOG(LogTemp, Warning, TEXT("%s"), *Subsystem->GetSubsystemName().ToString());
 }
 
