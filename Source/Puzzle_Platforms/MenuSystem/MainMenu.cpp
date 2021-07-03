@@ -2,10 +2,21 @@
 
 
 #include "MainMenu.h"
+
+#include "ServerRow.h"
 #include "Components/Button.h"
 #include "Components/WidgetSwitcher.h"
 #include "Components/EditableTextBox.h"
+#include "Components/TextBlock.h"
 #include "Kismet/KismetSystemLibrary.h"
+
+UMainMenu::UMainMenu()
+{
+	static ConstructorHelpers::FClassFinder<UUserWidget> ServerRowBPClass(TEXT("/Game/MenuSystem/WBP_ServerRow"));
+	if(!ensure(ServerRowBPClass.Class != nullptr)) return;
+
+	ServerRowClass = ServerRowBPClass.Class;
+}
 
 void UMainMenu::HostButtonClicked()
 {
@@ -13,15 +24,31 @@ void UMainMenu::HostButtonClicked()
 	MenuInterface->Host();
 }
 
-void UMainMenu::JoinButtonClicked()
+void UMainMenu::SetServerList(const TArray<FString> ServerNames)
+{
+	UWorld* World = this->GetWorld();
+	if(!ensure(World != nullptr)) return;
+	
+	ServerList->ClearChildren();
+	
+	for(const FString& Server : ServerNames)
+	{
+		UServerRow* ServerRow = CreateWidget<UServerRow>(World, ServerRowClass);
+		if(!ensure(ServerRow != nullptr)) return;
+		
+		ServerRow->ServerName->SetText(FText::FromString(Server));
+		ServerList->AddChild(ServerRow);
+	}
+}
+
+void UMainMenu::JoinServer()
 {
 	if(!ensure(MenuInterface != nullptr)) return;
-	if(!ensure(IPAddressBox != nullptr)) return;
+	if(!ensure(ServerList != nullptr)) return;
 
-	const FString& IPString = IPAddressBox->Text.ToString();
-	if(IPString.IsEmpty()) return;
+	MenuInterface->Join("");
 	
-	MenuInterface->Join(IPString);
+	//SetServerList();
 }
 
 void UMainMenu::OpenJoinMenu()
@@ -29,6 +56,9 @@ void UMainMenu::OpenJoinMenu()
 	if(!ensure(JoinMenu != nullptr)) return;
 	if(!ensure(MenuSwitcher != nullptr)) return;
 	MenuSwitcher->SetActiveWidget(JoinMenu);
+
+	if(!ensure(MenuInterface != nullptr)) return;
+	MenuInterface->RefreshServerList();
 }
 
 void UMainMenu::BackToMain()
@@ -61,7 +91,7 @@ bool UMainMenu::Initialize()
 	JoinMenuButton->OnClicked.AddDynamic(this, &UMainMenu::OpenJoinMenu);
 	
 	if(!ensure(Join != nullptr)) return false;
-	Join->OnClicked.AddDynamic(this, &UMainMenu::JoinButtonClicked);
+	Join->OnClicked.AddDynamic(this, &UMainMenu::JoinServer);
 
 	if(!ensure(Back != nullptr)) return false;
 	Back->OnClicked.AddDynamic(this, &UMainMenu::BackToMain);

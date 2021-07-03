@@ -8,6 +8,7 @@
 #include "MenuSystem/MenuWidget.h"
 #include "OnlineSubsystem.h"
 #include "Interfaces/OnlineSessionInterface.h"
+#include "MenuSystem/MainMenu.h"
 
 const static FName GSession_Name = TEXT("Session0");
 
@@ -29,11 +30,25 @@ UPuzzlePlatformsGameInstance::~UPuzzlePlatformsGameInstance()
 
 }
 
+void UPuzzlePlatformsGameInstance::Init()
+{
+	IOnlineSubsystem* Subsystem = IOnlineSubsystem::Get();
+	if(!ensure(Subsystem != nullptr)) return;
+
+	SessionInterface = Subsystem->GetSessionInterface();
+	if(!SessionInterface.IsValid()) return;
+	UE_LOG(LogTemp, Warning, TEXT("Found session interface"));
+
+	SessionInterface->OnCreateSessionCompleteDelegates.AddUObject(this, &UPuzzlePlatformsGameInstance::OnCreateSessionComplete);
+	SessionInterface->OnDestroySessionCompleteDelegates.AddUObject(this, &UPuzzlePlatformsGameInstance::OnDestroySessionComplete);
+	SessionInterface->OnFindSessionsCompleteDelegates.AddUObject(this, &UPuzzlePlatformsGameInstance::OnFindSessionComplete);
+}
+
 void UPuzzlePlatformsGameInstance::LoadMenuWidget()
 {
 	if (!ensure(MainMenuClass != nullptr)) return;
 	
-	UMenuWidget* MainMenu = CreateWidget<UMenuWidget>(this, MainMenuClass);
+	MainMenu = CreateWidget<UMainMenu>(this, MainMenuClass);
 	if(!ensure(MainMenu != nullptr)) return;
 
 	MainMenu->SetMenuInterface(this);
@@ -51,7 +66,6 @@ void UPuzzlePlatformsGameInstance::LoadPause()
 
 void UPuzzlePlatformsGameInstance::CreatePuzzleSession() const
 {
-
 	// Technically following the flow we shouldn't need this check...
 	if(SessionInterface)
 	{
@@ -86,15 +100,17 @@ void UPuzzlePlatformsGameInstance::Host()
 
 void UPuzzlePlatformsGameInstance::Join(const FString& IPAddress)
 {
-	if(IPAddress.IsEmpty()) return;
+	RefreshServerList();
 	
-	UEngine* Engine = GetEngine();
-	if(!ensure(Engine != nullptr)) return;
-
-	APlayerController* PlayerController = GetFirstLocalPlayerController();
-	if(!ensure(PlayerController != nullptr)) return;
-
-	PlayerController->ClientTravel(IPAddress, TRAVEL_Absolute);
+	//if(IPAddress.IsEmpty()) return;
+	
+	// UEngine* Engine = GetEngine();
+	// if(!ensure(Engine != nullptr)) return;
+	//
+	// APlayerController* PlayerController = GetFirstLocalPlayerController();
+	// if(!ensure(PlayerController != nullptr)) return;
+	//
+	// PlayerController->ClientTravel(IPAddress, TRAVEL_Absolute);
 }
 
 void UPuzzlePlatformsGameInstance::LoadMainMenu()
@@ -105,29 +121,15 @@ void UPuzzlePlatformsGameInstance::LoadMainMenu()
 	PlayerController->ClientTravel("/Game/MenuSystem/MainMenu", TRAVEL_Absolute);
 }
 
-void UPuzzlePlatformsGameInstance::Init()
+void UPuzzlePlatformsGameInstance::RefreshServerList()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Creating Session..."));
-	IOnlineSubsystem* Subsystem = IOnlineSubsystem::Get();
-	if(!ensure(Subsystem != nullptr)) return;
-
-	SessionInterface = Subsystem->GetSessionInterface();
-	if(!SessionInterface.IsValid()) return;
-	UE_LOG(LogTemp, Warning, TEXT("Found session interface"));
-
-	SessionInterface->OnCreateSessionCompleteDelegates.AddUObject(this, &UPuzzlePlatformsGameInstance::OnCreateSessionComplete);
-	SessionInterface->OnDestroySessionCompleteDelegates.AddUObject(this, &UPuzzlePlatformsGameInstance::OnDestroySessionComplete);
-
 	SessionSearch = MakeShareable(new FOnlineSessionSearch());
-
+	
 	if(SessionSearch.IsValid())
 	{
-		SessionSearch->bIsLanQuery = true;
-		UE_LOG(LogTemp, Warning, TEXT("Looking for sessions..."))
+		UE_LOG(LogTemp, Warning, TEXT("Looking for sessions..."));
 		SessionInterface->FindSessions(0, SessionSearch.ToSharedRef());
-		SessionInterface->OnFindSessionsCompleteDelegates.AddUObject(this, &UPuzzlePlatformsGameInstance::OnFindSessionComplete);
 	}
-	
 }
 
 void UPuzzlePlatformsGameInstance::OnFindSessionComplete(const bool Success)
@@ -136,10 +138,14 @@ void UPuzzlePlatformsGameInstance::OnFindSessionComplete(const bool Success)
 	{
 		if(SessionSearch->SearchResults.Num() >= 1)
 		{
+			UE_LOG(LogTemp, Warning, TEXT("Found Session"));
+			
+			TArray<FString> Addresses;
 			for (const FOnlineSessionSearchResult& Session : SessionSearch->SearchResults)
 			{
-				UE_LOG(LogTemp, Warning, TEXT("Session Found - ID:%s"), *Session.GetSessionIdStr())
-			}			
+				 Addresses.Add(*Session.GetSessionIdStr());
+			}
+			MainMenu->SetServerList(Addresses);
 		}
 		else
 		{

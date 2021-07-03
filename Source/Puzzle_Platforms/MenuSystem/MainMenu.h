@@ -12,13 +12,16 @@ UCLASS()
 class PUZZLE_PLATFORMS_API UMainMenu : public UMenuWidget
 {
 	GENERATED_BODY()
+
+	UMainMenu();
 	
 	private:
 	UFUNCTION()
 	void HostButtonClicked();
+	
 
 	UFUNCTION()
-	void JoinButtonClicked();
+	void JoinServer();
 
 	UFUNCTION()
 	void OpenJoinMenu();
@@ -48,13 +51,19 @@ class PUZZLE_PLATFORMS_API UMainMenu : public UMenuWidget
 	class UWidget* JoinMenu;
 
 	UPROPERTY(meta = (BindWidget))
-	class UEditableTextBox* IPAddressBox;
+	class UPanelWidget* ServerList;
 	
 	UPROPERTY(meta = (BindWidget))
 	class UButton* Quit;
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<UUserWidget> ServerRowClass;
 	
 	protected:
 	virtual bool Initialize() override;
+
+	public:
+	void SetServerList(TArray<FString> ServerNames);
 
 };
 

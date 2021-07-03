@@ -33,14 +33,15 @@ class PUZZLE_PLATFORMS_API UPuzzlePlatformsGameInstance : public UGameInstance, 
 
 	virtual void LoadMainMenu() override;
 	virtual void Init() override;
+	virtual void RefreshServerList() override;
 
 	void OnCreateSessionComplete(FName SessionName, bool SessionStarted);
 	void OnDestroySessionComplete(FName SessionName, bool SessionStarted);
 	void OnFindSessionComplete(bool Success);
 
-
 	TSubclassOf<UUserWidget> MainMenuClass;
 	TSubclassOf<UUserWidget> PauseMenuClass;
 	IOnlineSessionPtr SessionInterface;
 	TSharedPtr<class FOnlineSessionSearch> SessionSearch;
+	class UMainMenu* MainMenu;
 };
