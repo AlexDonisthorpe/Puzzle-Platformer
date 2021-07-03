@@ -24,6 +24,11 @@ UPuzzlePlatformsGameInstance::UPuzzlePlatformsGameInstance()
 	PauseMenuClass = PauseBPClass.Class;
 }
 
+UPuzzlePlatformsGameInstance::~UPuzzlePlatformsGameInstance()
+{
+
+}
+
 void UPuzzlePlatformsGameInstance::LoadMenuWidget()
 {
 	if (!ensure(MainMenuClass != nullptr)) return;
@@ -51,6 +56,10 @@ void UPuzzlePlatformsGameInstance::CreatePuzzleSession() const
 	if(SessionInterface)
 	{
 		FOnlineSessionSettings Settings;
+		Settings.bIsLANMatch = true;
+		Settings.NumPublicConnections = 2;
+		Settings.bShouldAdvertise = true;
+		
 		SessionInterface->CreateSession(0, GSession_Name, Settings);		
 	}
 	else
@@ -82,10 +91,6 @@ void UPuzzlePlatformsGameInstance::Join(const FString& IPAddress)
 	UEngine* Engine = GetEngine();
 	if(!ensure(Engine != nullptr)) return;
 
-	// Debug Text
-	const FString Message = FString::Printf(TEXT("Joining ... %s"), *IPAddress);
-	Engine->AddOnScreenDebugMessage(-1, 5.f, FColor::White, Message, true, FVector2D(1));
-
 	APlayerController* PlayerController = GetFirstLocalPlayerController();
 	if(!ensure(PlayerController != nullptr)) return;
 
@@ -112,6 +117,36 @@ void UPuzzlePlatformsGameInstance::Init()
 
 	SessionInterface->OnCreateSessionCompleteDelegates.AddUObject(this, &UPuzzlePlatformsGameInstance::OnCreateSessionComplete);
 	SessionInterface->OnDestroySessionCompleteDelegates.AddUObject(this, &UPuzzlePlatformsGameInstance::OnDestroySessionComplete);
+
+	SessionSearch = MakeShareable(new FOnlineSessionSearch());
+
+	if(SessionSearch.IsValid())
+	{
+		SessionSearch->bIsLanQuery = true;
+		UE_LOG(LogTemp, Warning, TEXT("Looking for sessions..."))
+		SessionInterface->FindSessions(0, SessionSearch.ToSharedRef());
+		SessionInterface->OnFindSessionsCompleteDelegates.AddUObject(this, &UPuzzlePlatformsGameInstance::OnFindSessionComplete);
+	}
+	
+}
+
+void UPuzzlePlatformsGameInstance::OnFindSessionComplete(const bool Success)
+{
+	if(Success && SessionSearch.IsValid())
+	{
+		if(SessionSearch->SearchResults.Num() >= 1)
+		{
+			for (const FOnlineSessionSearchResult& Session : SessionSearch->SearchResults)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Session Found - ID:%s"), *Session.GetSessionIdStr())
+			}			
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("No Sessions Found"));
+		}
+
+	}
 }
 
 void UPuzzlePlatformsGameInstance::OnCreateSessionComplete(const FName SessionName, const bool SessionStarted)

@@ -16,6 +16,7 @@ class PUZZLE_PLATFORMS_API UPuzzlePlatformsGameInstance : public UGameInstance, 
 	GENERATED_BODY()
 
 	UPuzzlePlatformsGameInstance();
+	~UPuzzlePlatformsGameInstance();
 
 	UFUNCTION(BlueprintCallable)
 	void LoadMenuWidget();
@@ -35,8 +36,11 @@ class PUZZLE_PLATFORMS_API UPuzzlePlatformsGameInstance : public UGameInstance, 
 
 	void OnCreateSessionComplete(FName SessionName, bool SessionStarted);
 	void OnDestroySessionComplete(FName SessionName, bool SessionStarted);
+	void OnFindSessionComplete(bool Success);
+
 
 	TSubclassOf<UUserWidget> MainMenuClass;
 	TSubclassOf<UUserWidget> PauseMenuClass;
 	IOnlineSessionPtr SessionInterface;
+	TSharedPtr<class FOnlineSessionSearch> SessionSearch;
 };
