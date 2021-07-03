@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Engine/GameInstance.h"
+#include "Interfaces/OnlineSessionInterface.h"
 #include "MenuSystem/MenuInterface.h"
 #include "PuzzlePlatformsGameInstance.generated.h"
 
@@ -21,7 +22,8 @@ class PUZZLE_PLATFORMS_API UPuzzlePlatformsGameInstance : public UGameInstance, 
 
 	UFUNCTION(BlueprintCallable)
 	void LoadPause();
-	
+	void CreatePuzzleSession() const;
+
 	UFUNCTION(Exec)
 	virtual void Host() override;
 
@@ -30,8 +32,11 @@ class PUZZLE_PLATFORMS_API UPuzzlePlatformsGameInstance : public UGameInstance, 
 
 	virtual void LoadMainMenu() override;
 	virtual void Init() override;
-	
-	private:
+
+	void OnCreateSessionComplete(FName SessionName, bool SessionStarted);
+	void OnDestroySessionComplete(FName SessionName, bool SessionStarted);
+
 	TSubclassOf<UUserWidget> MainMenuClass;
 	TSubclassOf<UUserWidget> PauseMenuClass;
+	IOnlineSessionPtr SessionInterface;
 };

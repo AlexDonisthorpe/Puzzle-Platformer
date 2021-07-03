@@ -2,9 +2,14 @@
 
 
 #include "PuzzlePlatformsGameInstance.h"
+
+#include "OnlineSessionSettings.h"
 #include "Blueprint/UserWidget.h"
 #include "MenuSystem/MenuWidget.h"
 #include "OnlineSubsystem.h"
+#include "Interfaces/OnlineSessionInterface.h"
+
+const static FName GSession_Name = TEXT("Session0");
 
 UPuzzlePlatformsGameInstance::UPuzzlePlatformsGameInstance()
 {
@@ -39,17 +44,35 @@ void UPuzzlePlatformsGameInstance::LoadPause()
 	PauseMenu->SetMenuInterface(this);
 }
 
+void UPuzzlePlatformsGameInstance::CreatePuzzleSession() const
+{
+
+	// Technically following the flow we shouldn't need this check...
+	if(SessionInterface)
+	{
+		FOnlineSessionSettings Settings;
+		SessionInterface->CreateSession(0, GSession_Name, Settings);		
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Failed to create session, No Session Interface found."));
+	}
+
+}
+
 void UPuzzlePlatformsGameInstance::Host()
 {
-	UEngine* Engine = GetEngine();
-	if(!ensure(Engine != nullptr)) return;
-	
-	Engine->AddOnScreenDebugMessage(-1, 5.f, FColor::White, TEXT("Host Message"), true, FVector2D(1));
-
-	UWorld* World = GetWorld();
-	if(!ensure(World != nullptr)) return;
-
-	World->ServerTravel("/Game/ThirdPersonCPP/Maps/ThirdPersonExampleMap?listen");
+	if (SessionInterface.IsValid())
+	{
+		if(SessionInterface->GetNamedSession(GSession_Name))
+		{
+			SessionInterface->DestroySession(GSession_Name);
+		}
+		else
+		{
+			CreatePuzzleSession();
+		}
+	}
 }
 
 void UPuzzlePlatformsGameInstance::Join(const FString& IPAddress)
@@ -79,9 +102,47 @@ void UPuzzlePlatformsGameInstance::LoadMainMenu()
 
 void UPuzzlePlatformsGameInstance::Init()
 {
+	UE_LOG(LogTemp, Warning, TEXT("Creating Session..."));
 	IOnlineSubsystem* Subsystem = IOnlineSubsystem::Get();
 	if(!ensure(Subsystem != nullptr)) return;
 
-	UE_LOG(LogTemp, Warning, TEXT("%s"), *Subsystem->GetSubsystemName().ToString());
+	SessionInterface = Subsystem->GetSessionInterface();
+	if(!SessionInterface.IsValid()) return;
+	UE_LOG(LogTemp, Warning, TEXT("Found session interface"));
+
+	SessionInterface->OnCreateSessionCompleteDelegates.AddUObject(this, &UPuzzlePlatformsGameInstance::OnCreateSessionComplete);
+	SessionInterface->OnDestroySessionCompleteDelegates.AddUObject(this, &UPuzzlePlatformsGameInstance::OnDestroySessionComplete);
+}
+
+void UPuzzlePlatformsGameInstance::OnCreateSessionComplete(const FName SessionName, const bool SessionStarted)
+{
+	if (SessionStarted)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("%s: Session Created"), *SessionName.ToString());
+
+		UEngine* Engine = GetEngine();
+		if(!ensure(Engine != nullptr)) return;
+	
+		UWorld* World = GetWorld();
+		if(!ensure(World != nullptr)) return;
+
+		World->ServerTravel("/Game/ThirdPersonCPP/Maps/ThirdPersonExampleMap?listen");
+	} else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Session could not be created"));
+	}
+}
+
+void UPuzzlePlatformsGameInstance::OnDestroySessionComplete(const FName SessionName, const bool DestroySuccessful)
+{
+	if(DestroySuccessful)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Session destroyed, creating new session..."));
+		CreatePuzzleSession();
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Couldn't destroy session %s"), *SessionName.ToString());
+	}
 }
 
