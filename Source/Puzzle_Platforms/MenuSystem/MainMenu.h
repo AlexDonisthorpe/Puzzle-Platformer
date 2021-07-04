@@ -7,6 +7,16 @@
 #include "MenuWidget.h"
 #include "MainMenu.generated.h"
 
+USTRUCT()
+struct FServerData
+{
+	GENERATED_BODY()
+	
+	FString Name;
+	uint8 CurrentPlayers;
+	uint8 MaxPlayers;
+	FString HostUsername;
+};
 
 UCLASS()
 class PUZZLE_PLATFORMS_API UMainMenu : public UMenuWidget
@@ -60,6 +70,8 @@ class PUZZLE_PLATFORMS_API UMainMenu : public UMenuWidget
 	TSubclassOf<UUserWidget> ServerRowClass;
 	
 	TOptional<uint32> SelectedIndex;
+
+	 void UpdateChildren();
 	
 	protected:
 	virtual bool Initialize() override;

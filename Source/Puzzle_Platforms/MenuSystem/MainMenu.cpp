@@ -50,6 +50,22 @@ void UMainMenu::SetServerList(const TArray<FString> ServerNames)
 void UMainMenu::SelectIndex(const uint32 Index)
 {
 	SelectedIndex = Index;
+	UpdateChildren();
+}
+
+void UMainMenu::UpdateChildren()
+{
+	TArray<UWidget*> Children = ServerList->GetAllChildren();
+	
+	for (int i = 0; i < Children.Num(); ++i)
+	{
+		UServerRow* Child = static_cast<UServerRow*>(Children[i]);
+
+		if(Child != nullptr)
+		{
+			Child->Selected = SelectedIndex.IsSet() && SelectedIndex.GetValue() == i;
+		}
+	}	
 }
 
 void UMainMenu::JoinServer()
@@ -93,6 +109,8 @@ void UMainMenu::QuitGame()
 	
 	UKismetSystemLibrary::QuitGame(GetWorld(), PlayerController, EQuitPreference::Quit, false);
 }
+
+
 
 bool UMainMenu::Initialize()
 {

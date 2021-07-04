@@ -70,7 +70,7 @@ void UPuzzlePlatformsGameInstance::CreatePuzzleSession() const
 	if(SessionInterface)
 	{
 		FOnlineSessionSettings Settings;
-		Settings.bIsLANMatch = false;
+		Settings.bIsLANMatch = true;
 		Settings.NumPublicConnections = 2;
 		Settings.bShouldAdvertise = true;
 		Settings.bUsesPresence = true;
