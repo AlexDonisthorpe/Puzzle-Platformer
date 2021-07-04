@@ -23,14 +23,16 @@ class PUZZLE_PLATFORMS_API UPuzzlePlatformsGameInstance : public UGameInstance, 
 
 	UFUNCTION(BlueprintCallable)
 	void LoadPause();
-	void CreatePuzzleSession() const;
 
 	UFUNCTION(Exec)
 	virtual void Host() override;
 
 	UFUNCTION(Exec)
-	virtual void Join(const FString& IPAddress) override;
+	virtual void Join(const uint32 Index) override;
 
+	void OnJoinSessionComplete(FName SessionName, EOnJoinSessionCompleteResult::Type Result);
+
+	void CreatePuzzleSession() const;
 	virtual void LoadMainMenu() override;
 	virtual void Init() override;
 	virtual void RefreshServerList() override;
@@ -43,5 +45,7 @@ class PUZZLE_PLATFORMS_API UPuzzlePlatformsGameInstance : public UGameInstance, 
 	TSubclassOf<UUserWidget> PauseMenuClass;
 	IOnlineSessionPtr SessionInterface;
 	TSharedPtr<class FOnlineSessionSearch> SessionSearch;
+
+	UPROPERTY()
 	class UMainMenu* MainMenu;
 };

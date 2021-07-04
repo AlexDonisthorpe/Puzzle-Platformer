@@ -30,6 +30,8 @@ void UMainMenu::SetServerList(const TArray<FString> ServerNames)
 	if(!ensure(World != nullptr)) return;
 	
 	ServerList->ClearChildren();
+
+	uint32 RowIndex = 0;
 	
 	for(const FString& Server : ServerNames)
 	{
@@ -37,18 +39,30 @@ void UMainMenu::SetServerList(const TArray<FString> ServerNames)
 		if(!ensure(ServerRow != nullptr)) return;
 		
 		ServerRow->ServerName->SetText(FText::FromString(Server));
+		ServerRow->Setup(this, RowIndex);
+
+		++RowIndex;
+		
 		ServerList->AddChild(ServerRow);
 	}
+}
+
+void UMainMenu::SelectIndex(const uint32 Index)
+{
+	SelectedIndex = Index;
 }
 
 void UMainMenu::JoinServer()
 {
 	if(!ensure(MenuInterface != nullptr)) return;
-	if(!ensure(ServerList != nullptr)) return;
-
-	MenuInterface->Join("");
-	
-	//SetServerList();
+	if(SelectedIndex.IsSet())
+	{
+		MenuInterface->Join(SelectedIndex.GetValue());
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Selected Index not set"));
+	}
 }
 
 void UMainMenu::OpenJoinMenu()

@@ -31,7 +31,7 @@ class PUZZLE_PLATFORMS_API UMainMenu : public UMenuWidget
 	
 	UFUNCTION()
 	void QuitGame();
-	
+
 	UPROPERTY(meta = (BindWidget))
 	class UButton* Host;
 
@@ -59,11 +59,14 @@ class PUZZLE_PLATFORMS_API UMainMenu : public UMenuWidget
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<UUserWidget> ServerRowClass;
 	
+	TOptional<uint32> SelectedIndex;
+	
 	protected:
 	virtual bool Initialize() override;
 
 	public:
 	void SetServerList(TArray<FString> ServerNames);
+	void SelectIndex(uint32 Index);
 
 };
 

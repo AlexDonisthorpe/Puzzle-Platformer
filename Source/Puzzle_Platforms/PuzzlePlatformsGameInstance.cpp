@@ -7,7 +7,6 @@
 #include "Blueprint/UserWidget.h"
 #include "MenuSystem/MenuWidget.h"
 #include "OnlineSubsystem.h"
-#include "Interfaces/OnlineSessionInterface.h"
 #include "MenuSystem/MainMenu.h"
 
 const static FName GSession_Name = TEXT("Session0");
@@ -42,6 +41,7 @@ void UPuzzlePlatformsGameInstance::Init()
 	SessionInterface->OnCreateSessionCompleteDelegates.AddUObject(this, &UPuzzlePlatformsGameInstance::OnCreateSessionComplete);
 	SessionInterface->OnDestroySessionCompleteDelegates.AddUObject(this, &UPuzzlePlatformsGameInstance::OnDestroySessionComplete);
 	SessionInterface->OnFindSessionsCompleteDelegates.AddUObject(this, &UPuzzlePlatformsGameInstance::OnFindSessionComplete);
+	SessionInterface->OnJoinSessionCompleteDelegates.AddUObject(this, &UPuzzlePlatformsGameInstance::OnJoinSessionComplete);
 }
 
 void UPuzzlePlatformsGameInstance::LoadMenuWidget()
@@ -98,19 +98,33 @@ void UPuzzlePlatformsGameInstance::Host()
 	}
 }
 
-void UPuzzlePlatformsGameInstance::Join(const FString& IPAddress)
+void UPuzzlePlatformsGameInstance::Join(const uint32 Index)
 {
-	RefreshServerList();
+	if(!SessionInterface.IsValid()) return;
+	if(!SessionSearch.IsValid()) return;
+	SessionInterface->JoinSession(0, GSession_Name, SessionSearch->SearchResults[Index]);
+
+}
+
+void UPuzzlePlatformsGameInstance::OnJoinSessionComplete(const FName SessionName, EOnJoinSessionCompleteResult::Type Result)
+{
+	if(!SessionInterface.IsValid()) return;
 	
-	//if(IPAddress.IsEmpty()) return;
+	FString ConnectInfo;
+	if(SessionInterface->GetResolvedConnectString(SessionName, ConnectInfo))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Connect Info: %s"), *ConnectInfo);
 	
-	// UEngine* Engine = GetEngine();
-	// if(!ensure(Engine != nullptr)) return;
-	//
-	// APlayerController* PlayerController = GetFirstLocalPlayerController();
-	// if(!ensure(PlayerController != nullptr)) return;
-	//
-	// PlayerController->ClientTravel(IPAddress, TRAVEL_Absolute);
+		APlayerController* PlayerController = GetFirstLocalPlayerController();
+		if(!ensure(PlayerController != nullptr)) return;
+	
+		PlayerController->ClientTravel(ConnectInfo, TRAVEL_Absolute);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Could not fetch connect string"));
+	}
+
 }
 
 void UPuzzlePlatformsGameInstance::LoadMainMenu()
