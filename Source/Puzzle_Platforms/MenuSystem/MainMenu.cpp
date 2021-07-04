@@ -24,7 +24,7 @@ void UMainMenu::HostButtonClicked()
 	MenuInterface->Host();
 }
 
-void UMainMenu::SetServerList(const TArray<FString> ServerNames)
+void UMainMenu::SetServerList(const TArray<FServerData> ServerDetails)
 {
 	UWorld* World = this->GetWorld();
 	if(!ensure(World != nullptr)) return;
@@ -33,12 +33,12 @@ void UMainMenu::SetServerList(const TArray<FString> ServerNames)
 
 	uint32 RowIndex = 0;
 	
-	for(const FString& Server : ServerNames)
+	for(const FServerData& Server : ServerDetails)
 	{
 		UServerRow* ServerRow = CreateWidget<UServerRow>(World, ServerRowClass);
 		if(!ensure(ServerRow != nullptr)) return;
 		
-		ServerRow->ServerName->SetText(FText::FromString(Server));
+		ServerRow->ServerName->SetText(FText::FromString(Server.HostUsername));
 		ServerRow->Setup(this, RowIndex);
 
 		++RowIndex;

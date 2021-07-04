@@ -77,7 +77,7 @@ class PUZZLE_PLATFORMS_API UMainMenu : public UMenuWidget
 	virtual bool Initialize() override;
 
 	public:
-	void SetServerList(TArray<FString> ServerNames);
+	void SetServerList(TArray<FServerData> ServerDetails);
 	void SelectIndex(uint32 Index);
 
 };

@@ -157,12 +157,18 @@ void UPuzzlePlatformsGameInstance::OnFindSessionComplete(const bool Success)
 		{
 			UE_LOG(LogTemp, Warning, TEXT("Found Session"));
 			
-			TArray<FString> Addresses;
-			for (const FOnlineSessionSearchResult& Session : SessionSearch->SearchResults)
+			TArray<FServerData> ServerDetails;
+			for (const FOnlineSessionSearchResult& SearchResult : SessionSearch->SearchResults)
 			{
-				 Addresses.Add(*Session.GetSessionIdStr());
+				FServerData Data;
+				Data.Name = *SearchResult.GetSessionIdStr();
+				Data.HostUsername = *SearchResult.Session.OwningUserName;
+				Data.MaxPlayers = SearchResult.Session.SessionSettings.NumPublicConnections;
+				Data.CurrentPlayers = SearchResult.Session.NumOpenPublicConnections;
+				
+				 ServerDetails.Add(Data);
 			}
-			MainMenu->SetServerList(Addresses);
+			MainMenu->SetServerList(ServerDetails);
 		}
 		else
 		{
