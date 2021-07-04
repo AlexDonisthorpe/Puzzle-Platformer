@@ -70,9 +70,10 @@ void UPuzzlePlatformsGameInstance::CreatePuzzleSession() const
 	if(SessionInterface)
 	{
 		FOnlineSessionSettings Settings;
-		Settings.bIsLANMatch = true;
-		Settings.NumPublicConnections = 2;
+		Settings.bIsLANMatch = false;
+		Settings.NumPublicConnections = 1;
 		Settings.bShouldAdvertise = true;
+		Settings.bUsesPresence = true;
 		
 		SessionInterface->CreateSession(0, GSession_Name, Settings);		
 	}
@@ -138,9 +139,12 @@ void UPuzzlePlatformsGameInstance::LoadMainMenu()
 void UPuzzlePlatformsGameInstance::RefreshServerList()
 {
 	SessionSearch = MakeShareable(new FOnlineSessionSearch());
-	
+
 	if(SessionSearch.IsValid())
 	{
+		SessionSearch->bIsLanQuery = false;
+		SessionSearch->MaxSearchResults = 100;
+		SessionSearch->QuerySettings.Set(SEARCH_PRESENCE, true, EOnlineComparisonOp::Equals);
 		UE_LOG(LogTemp, Warning, TEXT("Looking for sessions..."));
 		SessionInterface->FindSessions(0, SessionSearch.ToSharedRef());
 	}
