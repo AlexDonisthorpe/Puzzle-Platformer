@@ -190,7 +190,7 @@ void UPuzzlePlatformsGameInstance::OnCreateSessionComplete(const FName SessionNa
 		UWorld* World = GetWorld();
 		if(!ensure(World != nullptr)) return;
 
-		World->ServerTravel("/Game/ThirdPersonCPP/Maps/ThirdPersonExampleMap?listen");
+		World->ServerTravel("/Game/PuzzleComponents/Maps/Lobby?listen");
 	} else
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Session could not be created"));
