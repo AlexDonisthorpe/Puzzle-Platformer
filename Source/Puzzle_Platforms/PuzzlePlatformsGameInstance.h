@@ -48,4 +48,8 @@ class PUZZLE_PLATFORMS_API UPuzzlePlatformsGameInstance : public UGameInstance, 
 
 	UPROPERTY()
 	class UMainMenu* MainMenu;
+
+	public:
+	void StartSession();
+
 };

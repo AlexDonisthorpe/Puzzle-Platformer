@@ -17,6 +17,11 @@ class PUZZLE_PLATFORMS_API ALobbyGameMode : public APuzzle_PlatformsGameMode
 	virtual void PostLogin(APlayerController* NewPlayer) override;
 	virtual void Logout(AController* Exiting) override;
 
+	UFUNCTION()
+	virtual void ServerTravel();
+
 	int LobbyPlayerCount = 0;
+
+	FTimerHandle GameStartTimer;
 	
 };

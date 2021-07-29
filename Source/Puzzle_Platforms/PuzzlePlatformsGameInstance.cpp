@@ -3,6 +3,7 @@
 
 #include "PuzzlePlatformsGameInstance.h"
 
+#include "GameMapsSettings.h"
 #include "OnlineSessionSettings.h"
 #include "Blueprint/UserWidget.h"
 #include "MenuSystem/MenuWidget.h"
@@ -105,6 +106,14 @@ void UPuzzlePlatformsGameInstance::Join(const uint32 Index)
 	if(!SessionSearch.IsValid()) return;
 	SessionInterface->JoinSession(0, GSession_Name, SessionSearch->SearchResults[Index]);
 
+}
+
+void UPuzzlePlatformsGameInstance::StartSession()
+{
+	if(SessionInterface.IsValid())
+	{
+		SessionInterface->StartSession(GSession_Name);
+	}
 }
 
 void UPuzzlePlatformsGameInstance::OnJoinSessionComplete(const FName SessionName, EOnJoinSessionCompleteResult::Type Result)
