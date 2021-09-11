@@ -40,6 +40,7 @@ class PUZZLE_PLATFORMS_API UPuzzlePlatformsGameInstance : public UGameInstance, 
 	void OnCreateSessionComplete(FName SessionName, bool SessionStarted);
 	void OnDestroySessionComplete(FName SessionName, bool SessionStarted);
 	void OnFindSessionComplete(bool Success);
+	void OnNetworkFailure(UWorld* World, UNetDriver* NetDriver, ENetworkFailure::Type FailureType, const FString& ErrorString);
 
 	TSubclassOf<UUserWidget> MainMenuClass;
 	TSubclassOf<UUserWidget> PauseMenuClass;
